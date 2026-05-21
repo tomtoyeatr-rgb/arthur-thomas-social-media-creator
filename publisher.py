@@ -11,12 +11,11 @@ except ImportError:
 
 load_dotenv()
 
+from settings import get_setting, setting_bool
+
 
 def env_bool(name: str, default: bool = False) -> bool:
-    value = os.getenv(name)
-    if value is None:
-        return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
+    return setting_bool(name, default)
 
 
 def publishing_settings() -> dict[str, bool]:
@@ -27,7 +26,7 @@ def publishing_settings() -> dict[str, bool]:
 
 
 def _threads_post_text(post: dict[str, Any]) -> dict[str, Any]:
-    access_token = os.getenv("THREADS_ACCESS_TOKEN", "").strip()
+    access_token = get_setting("THREADS_ACCESS_TOKEN", "").strip()
     if not access_token:
         return {
             "success": False,
@@ -43,7 +42,7 @@ def _threads_post_text(post: dict[str, Any]) -> dict[str, Any]:
             "message": "Threads publishing failed: post is over 500 characters.",
         }
 
-    base_url = os.getenv("THREADS_API_BASE_URL", "https://graph.threads.net/v1.0").rstrip("/")
+    base_url = get_setting("THREADS_API_BASE_URL", "https://graph.threads.net/v1.0").rstrip("/")
 
     container_response = requests.post(
         f"{base_url}/me/threads",

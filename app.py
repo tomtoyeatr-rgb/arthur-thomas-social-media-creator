@@ -19,6 +19,7 @@ from database import (
 from publisher import publish_post
 from publisher import publishing_settings
 from safety import approved_hashtag_text, run_brand_safety
+from settings import get_setting
 
 
 load_dotenv()
@@ -306,11 +307,11 @@ def settings_page() -> None:
         st.info("Dry-run mode is active. Posts will be printed and logged instead of posted live.")
 
     st.subheader("API Key Status")
-    api_status = "Configured" if os.getenv("OPENAI_API_KEY", "").strip() else "Missing"
+    api_status = "Configured" if get_setting("OPENAI_API_KEY", "").strip() else "Missing"
     st.write("OpenAI API key:", api_status)
-    st.write("Meta access token:", "Configured" if os.getenv("META_ACCESS_TOKEN", "").strip() else "Missing")
-    st.write("Threads access token:", "Configured" if os.getenv("THREADS_ACCESS_TOKEN", "").strip() else "Missing")
-    st.write("LinkedIn access token:", "Configured" if os.getenv("LINKEDIN_ACCESS_TOKEN", "").strip() else "Missing")
+    st.write("Meta access token:", "Configured" if get_setting("META_ACCESS_TOKEN", "").strip() else "Missing")
+    st.write("Threads access token:", "Configured" if get_setting("THREADS_ACCESS_TOKEN", "").strip() else "Missing")
+    st.write("LinkedIn access token:", "Configured" if get_setting("LINKEDIN_ACCESS_TOKEN", "").strip() else "Missing")
 
     st.subheader("Approved Hashtags")
     st.code(approved_hashtag_text())

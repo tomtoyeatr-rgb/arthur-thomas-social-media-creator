@@ -9,6 +9,7 @@ except ImportError:
         return False
 
 from safety import APPROVED_HASHTAGS, run_brand_safety
+from settings import get_setting
 
 
 load_dotenv()
@@ -119,7 +120,7 @@ def generate_social_post(
     category: str,
     property_notes: str = "",
 ) -> dict[str, str]:
-    api_key = os.getenv("OPENAI_API_KEY", "").strip()
+    api_key = get_setting("OPENAI_API_KEY", "").strip()
     brand_rules = load_brand_rules()
 
     if not api_key:
@@ -150,7 +151,7 @@ Never fabricate property details, pricing, legal claims, guaranteed returns, or 
 Manual approval is required before publishing.
 """
         completion = client.chat.completions.create(
-            model=os.getenv("OPENAI_MODEL", "gpt-4.1-mini"),
+            model=get_setting("OPENAI_MODEL", "gpt-4.1-mini"),
             temperature=0.5,
             response_format={"type": "json_object"},
             messages=[
