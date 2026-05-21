@@ -16,6 +16,7 @@ from database import (
     update_post,
     utc_now_iso,
 )
+from publisher import publish_post
 from publisher import publishing_settings
 from safety import approved_hashtag_text, run_brand_safety
 
@@ -240,6 +241,32 @@ def review_page() -> None:
 
     if not can_schedule:
         st.info("Approve the post before scheduling.")
+
+    st.subheader("Publish")
+    can_publish_now = bool(post.get("approved_at")) and post["status"] in {"approved", "scheduled"}
+    if st.button("Publish Now", disabled=not can_publish_now or safety.blocked):
+        result = publish_post({**post, "caption": caption, "hashtags": hashtags, "image_prompt": image_prompt})
+        log_action(post_id, "publish_now_attempt", result["message"])
+        if result["success"]:
+            update_post(
+                post_id,
+                caption=caption,
+                hashtags=hashtags,
+                image_prompt=image_prompt,
+                notes=notes,
+                status="posted",
+                posted_at=utc_now_iso(),
+            )
+            log_action(post_id, "posted", result["message"])
+            st.success(result["message"])
+        else:
+            update_post(post_id, status="failed", notes=result["message"])
+            log_action(post_id, "failed", result["message"])
+            st.error(result["message"])
+        st.rerun()
+
+    if not can_publish_now:
+        st.info("Approve the post before publishing.")
 
 
 def calendar_page() -> None:
